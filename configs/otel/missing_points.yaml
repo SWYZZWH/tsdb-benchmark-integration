@@ -1,0 +1,16 @@
+targets:
+  - db: otel
+    host: localhost
+    port: 55680
+invariants:
+  scale: 400
+  batch-size: 1000
+  workers: 8
+  use-qps-limiter: true
+  limiter-max-qps: 20000
+  limiter-bucktet-size: 1000
+criterion:
+  max-metrics-missing-rate: 0.01
+server:
+  host: localhost
+  port: 8123
