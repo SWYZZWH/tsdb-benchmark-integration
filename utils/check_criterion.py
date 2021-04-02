@@ -1,7 +1,5 @@
-from utils.gateway.query import query_total_metrics
 
-
-def check_criterion(server, criterion, context) -> bool:
+def check_criterion(server, db, criterion, context) -> bool:
     if "max-metrics-missing-rate" in criterion.keys():
         rate = criterion["max-metrics-missing-rate"]
         ok, report_map = server.get_report()

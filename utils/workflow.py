@@ -1,6 +1,7 @@
 import time
 from utils.check_criterion import *
 from utils.benchmark_server.server import Server
+from utils.targets.influx import Influx
 
 
 def workflow_standard(configs):
