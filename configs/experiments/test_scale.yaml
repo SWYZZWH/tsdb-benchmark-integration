@@ -1,0 +1,28 @@
+targets:
+  - db: influx
+    urls: http://localhost:8086
+  - db: timescaledb
+    host: localhost
+    port: "5432"
+    pass: "password"
+  - db: victoriametrics
+    urls: http://localhost:8428/write
+variant:
+  name: scale
+  values:
+    - 1
+    - 10
+    - 100
+    - 1000
+    - 10000
+invariants:
+  use-case: devops
+  batch-size: 1000
+  workers: 1
+  use-qps-limiter: true
+  limiter-max-qps: 20000
+  limiter-bucket-size: 100000
+  expected-test-duration: 60
+server:
+  host: localhost
+  port: 8123

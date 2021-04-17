@@ -1,2 +1,2 @@
-pytest .\\tests
+pytest .\\tests\\experiments
 sleep 1000

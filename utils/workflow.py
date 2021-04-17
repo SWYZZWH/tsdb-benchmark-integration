@@ -1,10 +1,14 @@
 import time
+
+from utils.benchmark_server.metrics import autoset_timestamp_end
 from utils.check_criterion import *
 from utils.benchmark_server.server import Server
-from utils.targets.influx import Influx
+import logging
+
 
 
 def workflow_standard(configs):
+    logging.info("workflow started...")
     for config in configs:
         invariants = config["invariants"]
         benchmark_server = Server(config["server"])
@@ -13,23 +17,24 @@ def workflow_standard(configs):
             params = {}
             params.update(invariants)
             params.update(target)
-
             if config.get("variant") is not None:
                 for val in config["variant"]["values"]:
                     context = {}
-                    params.update({config["name"]: val})
+                    params.update({config["variant"]["name"]: val})
+
+                    autoset_timestamp_end(params)
 
                     context["start_time"] = time.time()
                     if not benchmark_server.start(params): return False
                     while True:
                         ok, status = benchmark_server.get_status()
                         if not ok: return False
-                        print(status)
                         if status == "stopped":
                             break
+                        time.sleep(1)
                     context["end_time"] = time.time()
 
-                    if config.get("criterion"):
+                    if config.get("criterion") is not None:
                         return check_criterion(benchmark_server, config["criterion"], context)
             else:
                 context = {}

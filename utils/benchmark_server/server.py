@@ -71,6 +71,7 @@ class Server:
     def get_status(self) -> (bool, str):
         api = self._get_api("get_status")
         res = requests.get(api)
+        print(res.text)
         return (True, res.text) if check_response_ok(res) else (False, res.text)
 
     def get_report(self) -> (bool, dict[str, str]):

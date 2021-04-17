@@ -8,7 +8,7 @@ invariants:
   workers: 8
   use-qps-limiter: true
   limiter-max-qps: 20000
-  limiter-bucktet-size: 1000
+  limiter-bucktet-size: 10000
 criterion:
   max-metrics-missing-rate: 0.01
 server:
