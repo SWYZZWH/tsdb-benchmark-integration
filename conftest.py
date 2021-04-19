@@ -1,6 +1,7 @@
 import pytest
 import yaml
 import logging
+import docker
 from utils.check_config import *
 
 
@@ -26,7 +27,8 @@ def config_loader(yaml_loader):
 
     yield _config_loader
 
-
-
+@pytest.fixture
+def docker_client():
+    return docker.from_env()
 
 

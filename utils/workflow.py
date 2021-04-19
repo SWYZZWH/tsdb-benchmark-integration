@@ -5,15 +5,19 @@ from utils.check_criterion import *
 from utils.benchmark_server.server import Server
 import logging
 
+from utils.docker.containers import start_container, stop_container, stop_all_containers
 
 
-def workflow_standard(configs):
+def workflow_standard(configs, docker_client):
     logging.info("workflow started...")
     for config in configs:
         invariants = config["invariants"]
         benchmark_server = Server(config["server"])
 
         for target in config["targets"]:
+            stop_all_containers(docker_client)
+            container = start_container(docker_client, target)  # start this target
+
             params = {}
             params.update(invariants)
             params.update(target)
@@ -45,5 +49,6 @@ def workflow_standard(configs):
                 if config.get("criterion"):
                     return check_criterion(benchmark_server, config["criterion"], context)
 
+            stop_container(container)
             return True
 
