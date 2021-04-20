@@ -8,14 +8,14 @@ targets:
   - db: victoriametrics
     urls: http://localhost:8428/write
 variant:
-  name: scale
+  name: batch-size
   values:
-    - 10
+    - 100
     - 1000
     - 100000
 invariants:
   use-case: devops
-  batch-size: 1000
+  scale: 1000
   workers: 2
   use-qps-limiter: true
   limiter-max-qps: 200000

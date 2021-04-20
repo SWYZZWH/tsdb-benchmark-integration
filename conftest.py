@@ -29,6 +29,6 @@ def config_loader(yaml_loader):
 
 @pytest.fixture
 def docker_client():
-    return docker.from_env()
+    yield docker.from_env()
 
 
