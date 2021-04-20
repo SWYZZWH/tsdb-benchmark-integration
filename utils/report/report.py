@@ -72,29 +72,35 @@ class Report:
                       [statistics.keys() for result in self.results for statistics in result[1].values()])
 
     def _print_pic(self, save_name, metric, targets):
-        fig, ax = plt.subplots()
+        with plt.style.context(["science"]):
+            fig, ax = plt.subplots()
+            # plt.style.use(["science"])
 
-        bar_count = len(self.results)
-        x = np.arange(bar_count)
-        width = 0.7 * 1 / bar_count
+            bar_count = len(targets)
+            x = np.arange(len(self.results))
+            width = 0.5 * 1 / bar_count
 
-        ax.set_title(self.title)
-        ax.set_xlabel(self.variant_name)
-        ax.set_ylabel(metric)
-        ax.set_xticks(x)
-        ax.set_xticklabels([result[0] for result in self.results])
+            # ax.set_title(self.title)
+            ax.set_xlabel(self.variant_name)
+            ax.set_ylabel(metric.replace("_", "-"))
+            ax.set_xticks(x)
+            ax.set_xticklabels([result[0] for result in self.results])
 
-        for i, target in enumerate(targets):
-            ax.bar(x - ((bar_count - 1) / 2 - i) * width, height=[result[1][target][metric] for result in self.results],
-                   width=width, label=target)
+            for i, target in enumerate(targets):
+                ax.bar(x - ((bar_count - 1) / 2 - i) * width, height=[result[1][target][metric] for result in self.results],
+                       width=width, label=target)
 
-        ax.legend()
-        plt.savefig(save_name)
-        plt.show()
+            ax.legend()
+            plt.savefig(save_name)
+            plt.show()
 
-        logging.info("pic has been stored in {}".format(save_name))
+            logging.info("pic has been stored in {}".format(save_name))
 
     def print_pics(self, save_dir):
+        save_dir = os.join(save_dir, "results")
+        if not os.path.isdir(save_dir):
+            os.mkdir(save_dir)
+
         common_targets = self._get_common_targets()
         common_metrics = self._get_common_metrics()
         if len(common_targets) == 0 or len(common_metrics) == 0:
@@ -126,10 +132,17 @@ if __name__ == "__main__":
     r = Report("empty", "scale")
     r1 = Result("influx", 1, {"cpu_usage": 30, "memory_usage": 50})
     r2 = Result("influx", 4, {"cpu_usage": 60, "memory_usage": 100})
+    r7 = Result("influx", 10, {"cpu_usage": 70, "memory_usage": 120})
     r3 = Result("timescaledb", 1, {"cpu_usage": 10, "memory_usage": 20})
     r4 = Result("timescaledb", 4, {"cpu_usage": 20, "memory_usage": 40})
+    r8 = Result("timescaledb", 10, {"cpu_usage": 40, "memory_usage": 70})
+    r5 = Result("victoriametrics", 1, {"cpu_usage": 10, "memory_usage": 20})
+    r6 = Result("victoriametrics", 4, {"cpu_usage": 20, "memory_usage": 40})
+    r9 = Result("victoriametrics", 10, {"cpu_usage": 30, "memory_usage": 100})
     r.add_result(r1)
     r.add_result(r2)
     r.add_result(r3)
     r.add_result(r4)
+    r.add_result(r5)
+    r.add_result(r6)
     r.print_pics(os.path.join(os.path.abspath(os.path.dirname(__file__))))
