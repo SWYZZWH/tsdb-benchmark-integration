@@ -97,7 +97,7 @@ class Report:
             logging.info("pic has been stored in {}".format(save_name))
 
     def print_pics(self, save_dir):
-        save_dir = os.join(save_dir, "results")
+        save_dir = os.path.join(save_dir, "results")
         if not os.path.isdir(save_dir):
             os.mkdir(save_dir)
 
