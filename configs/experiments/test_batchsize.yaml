@@ -10,17 +10,21 @@ targets:
 variant:
   name: batch-size
   values:
+    - 5
+    - 10
+    - 50
     - 100
     - 1000
-    - 100000
 invariants:
   use-case: devops
   scale: 1000
-  workers: 2
+  workers: 4
   use-qps-limiter: true
-  limiter-max-qps: 200000
-  limiter-bucket-size: 1000000
-  expected-test-duration: 60
+  limiter-max-qps: 20000
+  limiter-bucket-size: 40000
+  expected-test-duration: 120
+criterion:
+  max-time-deviation-rate: 0.1
 server:
   host: localhost
   port: 8123

@@ -8,17 +8,16 @@ targets:
   - db: victoriametrics
     urls: http://localhost:8428/write
 variant:
-  name: scale
+  name: use-case
   values:
-    - 100
-    - 1000
-    - 10000
-    - 100000
+    - devops
+    - iot
 invariants:
-  use-case: devops
+  scale: 1000
   batch-size: 1000
   workers: 4
   use-qps-limiter: true
+  limiter-max-qps: 200000
   limiter-bucket-size: 40000
   expected-test-duration: 120
 criterion:

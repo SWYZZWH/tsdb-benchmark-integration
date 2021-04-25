@@ -6,7 +6,8 @@ from utils.check_criterion import *
 from utils.benchmark_server.server import Server
 import logging
 import os
-from utils.docker.containers import start_container, stop_container, stop_all_containers, StatsAgent
+from utils.docker.containers import start_container, stop_container, stop_all_containers, StatsAgent, \
+    delete_all_containers
 from utils.report.report import Report, Result
 
 
@@ -18,15 +19,16 @@ def workflow_standard(configs, docker_client):
 
         report = Report(title=config["variant"]["name"], variant=config["variant"]["name"])
         for target in config["targets"]:
-            stop_all_containers(docker_client)
-            container = start_container(docker_client, target["db"])  # start this target
-            stats_agent = StatsAgent(BASE_URL, container.id)
-
             params = {}
             params.update(invariants)
             params.update(target)
+            is_valid = True
 
             for val in config["variant"]["values"]:
+                delete_all_containers(docker_client)
+                container = start_container(docker_client, target["db"])  # start this target
+                stats_agent = StatsAgent(BASE_URL, container.id)
+
                 context = {}
                 params.update({config["variant"]["name"]: val})
 
@@ -45,13 +47,12 @@ def workflow_standard(configs, docker_client):
                 context["end_time"] = time.time()
 
                 if config.get("criterion") is not None:
-                    return check_criterion(benchmark_server, config["criterion"], context)
+                    is_valid = check_criterion(benchmark_server, target["db"], config, context)
 
                 # get statistics
-                report.add_result(Result(target["db"], val, stats_agent.summary()))
+                report.add_result(Result(target["db"], val, stats_agent.all_stats()), is_valid)
+                stop_container(container)
 
-            stop_container(container)
-
-        report.print_pics(os.getcwd())
+        report.generate_report(os.getcwd())
         return True
 

@@ -3,24 +3,18 @@ targets:
     host: localhost
     port: "5432"
     pass: "password"
-  - db: influx
-    urls: http://localhost:8086
-  - db: victoriametrics
-    urls: http://localhost:8428/write
 variant:
-  name: scale
+  name: batch-size
   values:
-    - 100
-    - 1000
-    - 10000
-    - 100000
+    - 10
 invariants:
   use-case: devops
-  batch-size: 1000
+  scale: 1000
   workers: 4
   use-qps-limiter: true
+  limiter-max-qps: 20000
   limiter-bucket-size: 40000
-  expected-test-duration: 120
+  expected-test-duration: 20
 criterion:
   max-time-deviation-rate: 0.1
 server:

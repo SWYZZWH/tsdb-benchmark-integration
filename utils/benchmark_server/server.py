@@ -1,6 +1,7 @@
 import requests
 import logging
 import time
+import re
 
 supported_api = {
     "start": "start",
@@ -78,12 +79,13 @@ class Server:
         ok, log_file = self.get_log()
         if not ok: return False, None
         lines = log_file.split("\n")
-        total_metrics = 0
+        total_metrics, total_time = 0, 0
         for i, line in enumerate(lines):
             if line.startswith("Summary") and i < len(lines) - 1:
                 # get the latest report
-                total_metrics = [s for s in lines[i + 1].split(" ") if s.isdigit()][0]
-        return True, {"total_metrics": total_metrics}
+                total_metrics = re.findall(r'\d+.\d+|\d+', lines[i+1])[0]
+                total_time = re.findall(r'\d+.\d+|\d+', lines[i+1])[1]
+        return True, {"total_metrics": total_metrics, "total_time": total_time}
 
     # def wait_for_stop(self) -> bool:
     #     while (True):

@@ -12,8 +12,13 @@ docker_images_map = {
     VICTORIA_METRICS: {"image": "victoriametrics/victoria-metrics:v1.58.0", "params": {"ports": {"8428": "8428"}}},
     TIMESCALEDB: {"image": "timescale/timescaledb:2.0.0-pg12",
                   "params": {"ports": {"5432": "5432"}, "environment": ["POSTGRES_PASSWORD=password"]}
-    }
+                  }
 }
+
+
+def delete_all_containers(client: DockerClient):
+    stop_all_containers(client)
+    client.containers.prune()
 
 
 def stop_all_containers(client: DockerClient) -> bool:
@@ -56,7 +61,7 @@ class StatsAgent:  # one agent for one container
         self.stats_generator = self.client.stats(container=container_id) if container_id is not None else None
         next(self.stats_generator)  # get initial state
 
-        self.stats = []
+        self.stats = {}
 
     def _parse_response(self, res) -> dict:
         res = json.loads(res)
@@ -85,7 +90,20 @@ class StatsAgent:  # one agent for one container
             next(self.stats_generator)
 
         response = next(self.stats_generator)
-        self.stats.append(self._parse_response(response))
+
+        if "cpu_usage" not in self.stats.keys():
+            self.stats["cpu_usage"] = []
+        if "memory_usage" not in self.stats.keys():
+            self.stats["memory_usage"] = []
+
+        self.stats["cpu_usage"].append((self._parse_response(response))["cpu_usage"])
+        self.stats["memory_usage"].append((self._parse_response(response))["memory_usage"])
+
+    def all_stats(self) -> dict:
+        if len(self.stats) == 0:
+            return {}
+
+        return self.stats
 
     def summary(self) -> dict:
         if len(self.stats) == 0:
@@ -105,7 +123,7 @@ def test_statsagent():
     for i in range(10):
         sa.fetch_stats(id)
         time.sleep(1)
-    print(sa.summary())
+    print(sa.all_stats())
 
 
 def test_startcontainer():
